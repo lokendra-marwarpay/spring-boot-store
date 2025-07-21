@@ -7,3 +7,10 @@ spring:
     password: 12345678
   jpa:
     show-sql: true
+  mvc:
+    log-request-details: true
+logging:
+  level:
+    org:
+      springframework:
+        web: DEBUG
