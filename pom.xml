@@ -8,8 +8,8 @@
 		<version>3.5.3</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.example</groupId>
-	<artifactId>userDB</artifactId>
+	<groupId>com.codewithmosh</groupId>
+    <artifactId>store</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>userDB</name>
 	<description>Demo project for Spring Boot</description>
@@ -101,7 +101,7 @@
 				<artifactId>flyway-maven-plugin</artifactId>
 				<version>11.10.1</version>
 				<configuration>
-					<url>jdbc:mysql://localhost:3306/store?createDatabaseIfNotExist=true</url>
+					<url>jdbc:mysql://localhost:3306/store_api?createDatabaseIfNotExist=true</url>
 					<user>root</user>
 					<password>12345678</password>
 					<cleanDisabled>false</cleanDisabled>
