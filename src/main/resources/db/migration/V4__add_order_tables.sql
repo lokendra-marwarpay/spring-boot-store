@@ -13,6 +13,7 @@ CREATE TABLE order_items (
     product_id BIGINT NOT NULL,
     unit_price DECIMAL(10, 2) NOT NULL,
     quantity INT NOT NULL,
+    total_price decimal(10, 2) not null,
     CONSTRAINT order_items_order_id_fk Foreign Key (order_id) REFERENCES orders (id),
     CONSTRAINT order_items_product_id_fk Foreign Key (product_id) REFERENCES products (id)
 );
