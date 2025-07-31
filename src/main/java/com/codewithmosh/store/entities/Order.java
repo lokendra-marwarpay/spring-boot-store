@@ -39,7 +39,7 @@ public class Order {
     private OrderStatus status;
 
     // @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "created_id", insertable = false, updatable = false)
+    @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "total_price")
@@ -47,4 +47,22 @@ public class Order {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.PERSIST)
     private Set<OrderItem> items = new LinkedHashSet<>();
+
+    public static Order fromCart(Cart cart, User customer) {
+        var order = new Order();
+        order.setCustomer(customer);
+        order.setStatus(OrderStatus.PENDING);
+        order.setTotalPrice(cart.getTotalPrice());
+
+        cart.getItems().forEach(item -> {
+            var orderItem = new OrderItem(order, item.getProduct(), item.getQuantity());
+            order.items.add(orderItem);
+        });
+
+        return order;
+    }
+
+    public boolean isPlacedBy(User customer) {
+        return this.customer.equals(customer);
+    }
 }
