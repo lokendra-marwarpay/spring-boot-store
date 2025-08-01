@@ -1,20 +1,26 @@
 package com.codewithmosh.store.services;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.codewithmosh.store.dtos.CheckoutRequest;
 import com.codewithmosh.store.dtos.CheckoutResponse;
+import com.codewithmosh.store.dtos.WebhookRequest;
 import com.codewithmosh.store.entities.Order;
+import com.codewithmosh.store.entities.PaymentStatus;
 import com.codewithmosh.store.exceptions.CartEmptyException;
 import com.codewithmosh.store.exceptions.CartNotFoundException;
+import com.codewithmosh.store.exceptions.PaymentException;
 import com.codewithmosh.store.repositories.CartRepository;
 import com.codewithmosh.store.repositories.OrderRepository;
-import com.stripe.exception.StripeException;
-import com.stripe.model.checkout.Session;
-import com.stripe.param.checkout.SessionCreateParams;
+import com.stripe.exception.SignatureVerificationException;
+import com.stripe.model.PaymentIntent;
+import com.stripe.net.Webhook;
 
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor // this will include only those field declared with final keyword will
@@ -25,11 +31,10 @@ public class CheckoutService {
     private final AuthService authService;
     private final OrderRepository orderRepository;
     private final CartService cartService;
+    private final PaymentGateway paymentGateway;
 
-    @Value("${websiteUrl}")
-    private String websiteUrl;
-
-    public CheckoutResponse checkout(CheckoutRequest request) throws StripeException {
+    @Transactional
+    public CheckoutResponse checkout(CheckoutRequest request) {
         var cart = cartRepository.getCartWithItems(request.getCartId()).orElse(null);
         if (cart == null) {
             throw new CartNotFoundException();
@@ -43,31 +48,27 @@ public class CheckoutService {
 
         orderRepository.save(order);
 
-        var builder = SessionCreateParams.builder()
-                .setMode(SessionCreateParams.Mode.PAYMENT)
-                .setSuccessUrl(websiteUrl + "/checkout-success?orderId=" + order.getId())
-                .setCancelUrl(websiteUrl + "/checkout-cancel");
-        order.getItems().forEach(item -> {
-            var lineItem = SessionCreateParams.LineItem.builder()
-                    .setQuantity(Long.valueOf(item.getQuantity()))
-                    .setPriceData(
-                            SessionCreateParams.LineItem.PriceData.builder()
-                                    .setCurrency("usd")
-                                    .setUnitAmountDecimal(item.getUnitPrice())
-                                    .setProductData(
-                                            SessionCreateParams.LineItem.PriceData.ProductData.builder()
-                                                    .setName(item.getProduct().getName())
-                                                    .setDescription(item.getProduct().getDescription())
-                                                    .build())
-                                    .build())
-                    .build();
-            builder.addLineItem(lineItem);
-        });
+        try {
+            var session = paymentGateway.createCheckoutSession(order);
 
-        var session = Session.create(builder.build());
+            cartService.clearCart(cart.getId());
 
-        cartService.clearCart(cart.getId());
+            return new CheckoutResponse(order.getId(), session.getChackoutUrl());
+        } catch (PaymentException e) {
+            orderRepository.delete(order);
+            throw e;
+        }
+    }
 
-        return new CheckoutResponse(order.getId(), session.getUrl());
+    public void handleWebhookEvent(WebhookRequest request) {
+        paymentGateway
+                .parseWebhookRequest(request)
+                .ifPresent(paymentResult -> {
+                    System.out.println("paymentResult" + paymentResult);
+                    var order = orderRepository.findById(paymentResult.getOrderId()).orElseThrow();
+                    order.setStatus(paymentResult.getPaymentStatus());
+                    orderRepository.save(order);
+                });
+
     }
 }
