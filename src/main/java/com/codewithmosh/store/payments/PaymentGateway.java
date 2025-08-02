@@ -1,9 +1,7 @@
-package com.codewithmosh.store.services;
+package com.codewithmosh.store.payments;
 
 import java.util.Optional;
 
-import com.codewithmosh.store.dtos.PaymentResultDto;
-import com.codewithmosh.store.dtos.WebhookRequest;
 import com.codewithmosh.store.entities.Order;
 
 public interface PaymentGateway {

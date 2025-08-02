@@ -1,4 +1,4 @@
-package com.codewithmosh.store.config;
+package com.codewithmosh.store.payments;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;

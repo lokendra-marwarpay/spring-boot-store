@@ -1,8 +1,7 @@
-package com.codewithmosh.store.controllers;
+package com.codewithmosh.store.payments;
 
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,22 +10,11 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.codewithmosh.store.dtos.CheckoutRequest;
-import com.codewithmosh.store.dtos.CheckoutResponse;
 import com.codewithmosh.store.dtos.ErrorDto;
-import com.codewithmosh.store.dtos.WebhookRequest;
-import com.codewithmosh.store.entities.PaymentStatus;
 import com.codewithmosh.store.exceptions.CartEmptyException;
 import com.codewithmosh.store.exceptions.CartNotFoundException;
-import com.codewithmosh.store.exceptions.PaymentException;
-import com.codewithmosh.store.repositories.OrderRepository;
-import com.codewithmosh.store.services.CheckoutService;
-import com.stripe.exception.SignatureVerificationException;
-import com.stripe.model.PaymentIntent;
-import com.stripe.net.Webhook;
 
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -34,7 +22,6 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/checkout")
 public class CheckoutController {
     private final CheckoutService checkoutService;
-    private final OrderRepository orderRepository;
 
     @PostMapping
     public CheckoutResponse checkout(
