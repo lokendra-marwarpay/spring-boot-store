@@ -1,4 +1,4 @@
-package com.codewithmosh.store.entities;
+package com.codewithmosh.store.carts;
 
 import java.math.BigDecimal;
 
@@ -13,43 +13,34 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @Entity
-@NoArgsConstructor
-@Table(name = "order_items")
-public class OrderItem {
+@Table(name = "CartItems")
+public class CartItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "id", nullable = false)
     private Long id;
 
-    // @NotNull
     @ManyToOne
-    @JoinColumn(name = "order_id")
-    private Order order;
+    // @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(name = "cart_id"
+    // nullable = false
+    )
+    private Cart cart;
 
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
 
-    @Column(name = "unit_price")
-    private BigDecimal unitPrice;
-
+    // @ColumnDefault("1") // already defined in database
     @Column(name = "quantity")
     private Integer quantity;
 
-    @Column(name = "total_price")
-    private BigDecimal totalPrice;
-
-    public OrderItem(Order order, Product product, Integer quantity) {
-        this.order = order;
-        this.product = product;
-        this.quantity = quantity;
-        this.unitPrice = product.getPrice();
-        this.totalPrice = unitPrice.multiply(BigDecimal.valueOf(quantity));
+    public BigDecimal getTotalPrice() {
+        return product.getPrice().multiply(BigDecimal.valueOf(quantity));
     }
 }

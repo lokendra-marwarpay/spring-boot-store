@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.codewithmosh.store.entities.Order;
-import com.codewithmosh.store.entities.User;
+import com.codewithmosh.store.users.User;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
     @EntityGraph(attributePaths = "items.product")

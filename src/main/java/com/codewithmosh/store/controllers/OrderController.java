@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.codewithmosh.store.dtos.ErrorDto;
+import com.codewithmosh.store.common.ErrorDto;
 import com.codewithmosh.store.dtos.OrderDto;
 import com.codewithmosh.store.exceptions.OrderNotFoundException;
 import com.codewithmosh.store.services.OrderService;
